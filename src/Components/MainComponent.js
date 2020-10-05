@@ -7,11 +7,12 @@ function MainComponent() {
     var tasks = JSON.parse(localStorage.getItem(loggedUser)).tasks;
     const [modal, setModal] = useState(false);
     const [taskname, changeName] = useState('');
+    const [details, changeDetails] = useState('');
     var password = JSON.parse(localStorage.getItem(loggedUser)).password;
 
     const deleteClicked = (t) => {
         for(var i = 0; i < tasks.length; i++){
-            if(tasks[i] === t){
+            if(tasks[i][0] === t){
                 tasks.splice(i, 1);
                 localStorage.setItem(loggedUser, JSON.stringify({password: password, tasks: tasks}));
                 window.location.reload(false);
@@ -20,12 +21,13 @@ function MainComponent() {
         }
     }
     
-    const taskList = tasks.map((t) => {
+    const taskList = tasks.map((t) => {       
         return(
             <div>
-                <p>{t}<i className="fa fa-trash ml-2" onClick={() => {                    
-                    deleteClicked(t);                                       
+                <p>{t[0]}<i className="fa fa-trash ml-2" onClick={() => {                    
+                    deleteClicked(t[0]);                                       
                 }}></i></p>
+                <p>{t[1]}</p>
             </div>
         );
     });      
@@ -40,10 +42,15 @@ function MainComponent() {
 
         }
         else{
-            var userDet = {password: password, tasks: tasks.concat(taskname)}
+            var arr = [taskname + ": date added: " + new Date(), details];
+            var userDet = {password: password, tasks: tasks.concat([arr])}
             localStorage.setItem(loggedUser, JSON.stringify(userDet));
             toggle();
         }
+    }
+
+    const handleDetailsChange = (e) => {
+        changeDetails(e.target.value);
     }
 
     return(
@@ -55,9 +62,9 @@ function MainComponent() {
                         Add Tasks to your schedule
                     </ToastHeader>
                     <ToastBody>
-                        <h6>Add a new task   <i className="fa fa-plus-circle fa-lg" style={{marginLeft:"auto"}} onClick={() => {
+                        Add a new task   <i className="fa fa-plus-circle fa-lg" style={{marginLeft:"auto"}} onClick={() => {
                             toggle();
-                        }}></i></h6>
+                        }}></i>
                         <div style={{marginTop:"15px"}}>{taskList}</div>                        
                     </ToastBody>
                 </Toast>                
@@ -69,6 +76,7 @@ function MainComponent() {
                         <Button color="info" style={{marginLeft:"15px"}} onClick={() => {
                             handleAdd(taskname);
                         }}>Add task</Button>
+                        <textarea type="textArea" placeholder="Details" style={{height:"100px"}} onChange={handleDetailsChange}></textarea>                     
                 </ModalBody>                
             </Modal>           
         </div>
